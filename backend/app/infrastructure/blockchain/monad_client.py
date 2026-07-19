@@ -2,19 +2,28 @@ from web3 import Web3 #used to communicate with the blockchain
 from eth_account import Account #used to create wallet accounts, create transactions, and sign transactions
 from app.domain.repositories import  BlockChainService
 from app.infrastructure.securtiy.encryption import decrypt_key
+import json
+import os
+
+
+def load_contract_abi() -> list:
+    abi_path = os.path.join(os.path.dirname(__file__), "proofvault_abi.json") #loads the contract abi from the proofvault_abi.json file
+    with open(abi_path, "r") as f:
+        return json.load(f) #reads the abi from the file and returns it as a list
 
 class MonadBlockChainService(BlockChainService):
     #run this function only once
-    def __init__(self, monad_rpc_url: str, contract_address: str, contract_abi: list):
+    def __init__(self, monad_rpc_url: str, contract_address: str, contract_abi: list, chain_id: int):
         self.web3 = Web3(Web3.HTTPProvider(monad_rpc_url)) #creates a connection to monad rpc
         #create a contract object that allows us to interact with the smart contract on the monad blockchain
         self.contract = self.web3.eth.contract(
             address=contract_address, #adress of the smart contract on the monad blockchain
-            abi=contract_abi #instruction manual for the smart contract on the monad blockchain
+            abi=contract_abi, #instruction manual for the smart contract on the monad blockchain
+            chainID = chain_id #used to prevent replay attacks
         )
 
     async def record_agreement(
-        self,
+        self, 
         signer_private_Key: str, #private key of the signer which authorizes the signing of the agreement 
         fingerprint_hash: str, #unique hash of the agreement being sent to the blockchain
         counterparty_wallet_address: str, #wallet address of the counterparty
@@ -34,7 +43,7 @@ class MonadBlockChainService(BlockChainService):
             "nonce": self.web3.eth.get_transaction_count(account.address), #getting the number of transactions sent from the signer's address to prevent replay attacks
             "gas": 3000000, 
             "gasPrice": self.web3.eth.gas_price, #getting the current gas price on the monad blockchain
-            "chainId": 10143
+            "chainId": self.chain_id 
         })
         
         #signing the transaction with the signer's private key

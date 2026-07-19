@@ -17,7 +17,7 @@ contract ProofVault {
         bytes32 termsHash,
         address indexed creator,
         address indexed counterparty,
-        uint256 timestamp
+        uint256 timestamp 
     );
 
     function recordAgreement(
