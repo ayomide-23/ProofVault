@@ -15,11 +15,12 @@ class MonadBlockChainService(BlockChainService):
     #run this function only once
     def __init__(self, monad_rpc_url: str, contract_address: str, contract_abi: list, chain_id: int):
         self.web3 = Web3(Web3.HTTPProvider(monad_rpc_url)) #creates a connection to monad rpc
+        contract_address = Web3.to_checksum_address(contract_address) #converts the contract address to a checksum address
+        self.chain_id=chain_id #chain id of the monad blockchain
         #create a contract object that allows us to interact with the smart contract on the monad blockchain
         self.contract = self.web3.eth.contract(
             address=contract_address, #adress of the smart contract on the monad blockchain
-            abi=contract_abi, #instruction manual for the smart contract on the monad blockchain
-            chainID = chain_id #used to prevent replay attacks
+            abi=contract_abi, #instruction man ual for the smart contract on the monad blockchain
         )
 
     async def record_agreement(
@@ -36,8 +37,8 @@ class MonadBlockChainService(BlockChainService):
         #building the transaction to send to the monad blockchain
         transaction = self.contract.functions.recordAgreement(
             bytes.fromhex(fingerprint_hash), #converts the fingerprint hash from hex to bytes
-            Web3.toChecksumAddress(creator_wallet_address), #checking the address of the creator
-            Web3.toChecksumAddress(counterparty_wallet_address) #checking the address of the counterparty
+            Web3.to_checksum_address(creator_wallet_address), #checking the address of the creator
+            Web3.to_checksum_address(counterparty_wallet_address) #checking the address of the counterparty
         ).build_transaction({
             "from": account.address, #address of the signer
             "nonce": self.web3.eth.get_transaction_count(account.address), #getting the number of transactions sent from the signer's address to prevent replay attacks
@@ -50,10 +51,10 @@ class MonadBlockChainService(BlockChainService):
         signed_transaction = account.sign_transaction(transaction)
         
         #sending the signed transaction to the monad blockchain
-        tranasaction_Hash = self.web3.eth.send_raw_transaction(signed_transaction.raw_transaction)
+        transaction_Hash = self.web3.eth.send_raw_transaction(signed_transaction.raw_transaction)
         
         #waiting for confirmation
-        receipt = self.web3.eth.wait_for_tranasaction_receipt(tranasaction_Hash)
+        receipt = self.web3.eth.wait_for_transaction_receipt(transaction_Hash)
         
         #returning it
         return receipt.transactionHash.hex()

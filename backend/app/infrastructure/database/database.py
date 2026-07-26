@@ -8,11 +8,11 @@ load_dotenv()
 async def init_db():
     mongo_url = os.getenv("MONGO_URL")
     if not mongo_url:
-        raise ValueError("Cannot establish databse connection")
+        raise ValueError("Cannot establish database connection")
     
     client = AsyncIOMotorClient(mongo_url)
     
-    await init_db(
-        database = client.get_default_database(),
+    await init_beanie(
+        database = client["proofvault"],
         document_models = [UserDocument, AgreementDocument]
     )

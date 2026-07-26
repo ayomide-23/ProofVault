@@ -12,6 +12,9 @@ from app.application.use_case.sign_agreement import SignAgreementUseCase
 from app.application.use_case.create_agreement import CreateAgreementUseCase
 from app.application.use_case.get_agreement import GetAgreementUseCase
 
+from app.interface.api.users import router as users_router
+from app.interface.api.agreements import router as agreements_router
+
 load_dotenv()
 
 @asynccontextmanager
@@ -33,8 +36,11 @@ async def lifespan(app: FastAPI):
     app.state.sign_agreement_use_case = SignAgreementUseCase(agreement_repository, user_repository, blockchain_service)
     app.state.get_agreement_use_case = GetAgreementUseCase(agreement_repository)
     
-    yield 
+    yield #shutdown
 app = FastAPI(title="ProofVault", lifespan = lifespan)
+#registering the routers for the users and agreements endpoints
+app.include_router(users_router)
+app.include_router(agreements_router)
 @app.get("/")
 async def root():
     return{"message": "ProofVault API is running successfully!"}
