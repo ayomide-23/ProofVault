@@ -8,9 +8,9 @@ class CreateAgreementUseCase:
         self.agreement_repository = agreement_repository
         self.user_repository = user_repository
         
-    async def execute(self, title: str, terms: str, creator_id: str, phone_number: str, price: Optional[str] = None) -> Agreement: 
+    async def execute(self, title: str, terms: str, creator_id: str, counterparty_phone: str, price: Optional[float] = None) -> Agreement: 
         #checking if the counterparty already exists in the database using their phone number
-        counterparty = await self.user_repository.get_by_phone(phone_number)
+        counterparty = await self.user_repository.get_by_phone(counterparty_phone)
         if counterparty is None:
             raise ValueError("CounterParty not found.")
         

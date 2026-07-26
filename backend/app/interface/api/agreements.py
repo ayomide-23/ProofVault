@@ -28,7 +28,7 @@ async def create_agreement(request: Request, agreement_request: CreateAgreementR
             title= agreement_request.title,
             terms = agreement_request.terms,
             creator_id = agreement_request.creator_id,
-            counterparty_id = agreement_request.counterparty_id,
+            counterparty_phone = agreement_request.counterparty_phone,
             price = agreement_request.price
         )
     except ValueError as e:
@@ -41,7 +41,7 @@ async def sign_agreement(request: Request, agreement_id: str, sign_request: Sign
     try:
         agreement = await use_case.execute(agreement_id=agreement_id, signer_id=sign_request.signer_id)
     except ValueError as e:
-        raise HTTPException(status_code=403, details=str(e))
+        raise HTTPException(status_code=403, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
     return __to_response(agreement)
@@ -52,5 +52,5 @@ async def get_agreement(agreement_id: str, request: Request):
     try:
         agreement = await use_case.execute(agreement_id)
     except ValueError as e:
-        raise HTTPExcepetion(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e))
     return __to_response(agreement)

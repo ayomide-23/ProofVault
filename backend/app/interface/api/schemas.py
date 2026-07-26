@@ -16,7 +16,7 @@ class CreateAgreementRequest(BaseModel):
     title: str
     terms: str
     creator_id: str
-    counterparty_id: str
+    counterparty_phone: str
     price: Optional[float] = None
 
 class SignAgreementRequest(BaseModel):
