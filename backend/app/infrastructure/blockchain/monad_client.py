@@ -25,13 +25,13 @@ class MonadBlockChainService(BlockChainService):
 
     async def record_agreement(
         self, 
-        signer_private_Key: str, #private key of the signer which authorizes the signing of the agreement 
+        signer_private_key: str, #private key of the signer which authorizes the signing of the agreement 
         fingerprint_hash: str, #unique hash of the agreement being sent to the blockchain
         counterparty_wallet_address: str, #wallet address of the counterparty
         creator_wallet_address: str, #wallet address of the creator
     ) -> str: 
         #decrypt the private key and load it into the wallet
-        private_Key = decrypt_key(signer_private_Key)
+        private_Key = decrypt_key(signer_private_key)
         account = Account.from_key(private_Key) #loading the private key into the wallet
         
         #building the transaction to send to the monad blockchain
@@ -42,7 +42,7 @@ class MonadBlockChainService(BlockChainService):
         ).build_transaction({
             "from": account.address, #address of the signer
             "nonce": self.web3.eth.get_transaction_count(account.address), #getting the number of transactions sent from the signer's address to prevent replay attacks
-            "gas": 3000000, 
+            "gas": 300000, 
             "gasPrice": self.web3.eth.gas_price, #getting the current gas price on the monad blockchain
             "chainId": self.chain_id 
         })

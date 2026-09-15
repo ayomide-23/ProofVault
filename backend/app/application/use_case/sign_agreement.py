@@ -6,8 +6,8 @@ from app.domain.enums import AgreementStatus
 
 class SignAgreementUseCase:
     def __init__(self, user_repository: UserRepository, agreement_repository: AgreementRepository, blockchain_service: BlockChainService):
-        self.user_repository = user_repository,
-        self.agreement_repository = agreement_repository,
+        self.user_repository = user_repository
+        self.agreement_repository = agreement_repository
         self.blockchain_service = blockchain_service
     #checking if the agreement exists
     async def execute(self, agreement_id: str, signer_id: str) -> Agreement:

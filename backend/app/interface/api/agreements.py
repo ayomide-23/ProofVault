@@ -35,7 +35,7 @@ async def create_agreement(request: Request, agreement_request: CreateAgreementR
         raise HTTPException(status_code=400, detail=str(e))
     return __to_response(agreement)
 #route to sign an existing agreement in the database and return the updated agreement as a response
-@router.post("{agreement_id}/sign", response_model=AgreementResponse)
+@router.post("/{agreement_id}/sign", response_model=AgreementResponse)
 async def sign_agreement(request: Request, agreement_id: str, sign_request: SignAgreementRequest):
     use_case = request.app.state.sign_agreement_use_case
     try:
@@ -46,7 +46,7 @@ async def sign_agreement(request: Request, agreement_id: str, sign_request: Sign
         raise HTTPException(status_code=404, detail=str(e))
     return __to_response(agreement)
 
-@router.get("{agreement_id}", response_model=AgreementResponse)
+@router.get("/{agreement_id}", response_model=AgreementResponse)
 async def get_agreement(agreement_id: str, request: Request):
     use_case = request.app.state.get_agreement_use_case
     try:

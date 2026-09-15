@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
     
     app.state.create_user_use_case = CreateUserUseCase(user_repository)
     app.state.create_agreement_use_case = CreateAgreementUseCase(agreement_repository, user_repository)
-    app.state.sign_agreement_use_case = SignAgreementUseCase(agreement_repository, user_repository, blockchain_service)
+    app.state.sign_agreement_use_case = SignAgreementUseCase(user_repository, agreement_repository, blockchain_service)
     app.state.get_agreement_use_case = GetAgreementUseCase(agreement_repository)
     
     yield #shutdown

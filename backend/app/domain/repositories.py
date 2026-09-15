@@ -9,7 +9,7 @@ class BlockChainService(ABC):
     @abstractmethod #every blockchain method should have a record management
     async def record_agreement(
         self,
-        signer_private_Key: str, #private key of the signer which authorizes the signing of the agreement that will be sent to monad i.e it doesnt get sent to monad
+        signer_private_key: str, #private key of the signer which authorizes the signing of the agreement that will be sent to monad i.e it doesnt get sent to monad
         fingerprint_hash: str, #unique hash of the agreement being sent to the blockchain
         counterparty_wallet_address: str, #wallet address of the counterparty
         creator_wallet_address: str, #wallet address of the creator
