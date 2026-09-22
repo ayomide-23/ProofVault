@@ -5,23 +5,38 @@ from app.domain.rules import can_sign
 from app.domain.enums import AgreementStatus
 
 class SignAgreementUseCase:
-    def __init__(self, user_repository: UserRepository, agreement_repository: AgreementRepository, blockchain_service: BlockChainService):
+    def __init__(self, user_repository: UserRepository, agreement_repository: AgreementRepository, blockchain_service: BlockChainService, treasury_pool):
         self.user_repository = user_repository
         self.agreement_repository = agreement_repository
         self.blockchain_service = blockchain_service
+        self.treasury_pool = treasury_pool
+        
     #checking if the agreement exists
     async def execute(self, agreement_id: str, signer_id: str) -> Agreement:
         agreement = await self.agreement_repository.get_by_id(agreement_id)
         if not agreement:
             raise ValueError("Agreement not found")
+        
         #checking if the counterparty is allowed to sign the agreement
         if not can_sign(agreement, signer_id):
             raise ValueError("User not allowed to sign agreement")
+        
         #retrieving the signer's and creator's info from the database
         signer = await self.user_repository.get_by_id(signer_id) #fetching the signer's record via id
         creator = await self.user_repository.get_by_id(agreement.creator_id) #fetching the creator's record via id
+        
         if signer is None or creator is None:
             raise ValueError("User not found")
+        
+        #calculating required mon amount
+        required_mon_amt = await self.blockchain_service.estimate_sign_cost(
+            signer_wallet_addr= signer.wallet_address,
+            creator_wallet_addr = creator.wallet_address,
+            fingerprint_hash = agreement.fingerprint_hash
+        )
+        await self.treasury_pool.fund_wallet_if_needed(
+            signer.wallet_address, required_mon_amt = required_mon_amt
+        )
         #recording the agreement on the blockchain
         tx_hash = await self.blockchain_service.record_agreement(
             signer_private_key= signer.enctypted_private_key, #the signer's private key is used to sign the agreement on the blockchain

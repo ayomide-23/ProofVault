@@ -15,6 +15,8 @@ from app.application.use_case.get_agreement import GetAgreementUseCase
 from app.interface.api.users import router as users_router
 from app.interface.api.agreements import router as agreements_router
 
+from app.infrastructure.blockchain.treasury_pool import TreasuryWalletPool
+
 load_dotenv()
 
 @asynccontextmanager
@@ -30,10 +32,14 @@ async def lifespan(app: FastAPI):
         contract_abi = load_contract_abi(),
         chain_id = int(os.getenv("CHAIN_ID"))
     )
+    treasury_pool = TreasuryWalletPool(
+        web3=blockchain_service.web3,
+        chain_id= int(os.getenv("CHAIN_ID"))
+    )
     
     app.state.create_user_use_case = CreateUserUseCase(user_repository)
     app.state.create_agreement_use_case = CreateAgreementUseCase(agreement_repository, user_repository)
-    app.state.sign_agreement_use_case = SignAgreementUseCase(user_repository, agreement_repository, blockchain_service)
+    app.state.sign_agreement_use_case = SignAgreementUseCase(user_repository, agreement_repository, blockchain_service, treasury_pool)
     app.state.get_agreement_use_case = GetAgreementUseCase(agreement_repository)
     
     yield #shutdown
