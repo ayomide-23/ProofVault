@@ -30,8 +30,8 @@ class SignAgreementUseCase:
         
         #calculating required mon amount
         required_mon_amt = await self.blockchain_service.estimate_sign_cost(
-            signer_wallet_addr= signer.wallet_address,
-            creator_wallet_addr = creator.wallet_address,
+            signer_wallet_address= signer.wallet_address,
+            creator_wallet_address = creator.wallet_address,
             fingerprint_hash = agreement.fingerprint_hash
         )
         await self.treasury_pool.fund_wallet_if_needed(

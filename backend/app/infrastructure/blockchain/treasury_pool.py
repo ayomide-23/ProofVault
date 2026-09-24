@@ -19,7 +19,7 @@ class TreasuryWalletPool:
     
     async def fund_wallet_if_needed(self, recepient_address: str, required_mon_amt: float):
         current_bal = self.web3.eth.get_balance(Web3.to_checksum_address(recepient_address)) #get address of the recipient
-        current_mon_bal = self.web3.from_wei(current_bal, "ether") #check recepient bal
+        current_mon_bal = float(self.web3.from_wei(current_bal, "ether")) #check recepient bal
         
         if current_mon_bal >= required_mon_amt:
             return #do not fund recipient wallet
@@ -35,12 +35,12 @@ class TreasuryWalletPool:
         async with self.locks[0]:
             return await self._send_funding_tx(self.accounts[0], recepient_address, top_up_amt)
     
-    async def _send_funding_tx(self, account, recipient_addr: str, amt_wei: int):
+    async def _send_funding_tx(self, account, recipient_addr: str, mon_amt: float):
         #building transaction details
         tx = {
             "from": account.address,
             "to": Web3.to_checksum_address(recipient_addr),
-            "value": amt_wei,
+            "value": self.web3.to_wei(mon_amt, "ether"),
             "nonce": self.web3.eth.get_transaction_count(account.address),
             "gas": 21000,
             "gasPrice": self.web3.eth.gas_price,

@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from .entities import Agreement, User
-from web3 import Web3
 #abc stands for abstract base class
 #other classes will inherit from this class and implement its abstract methods
 #every blockchain service  being sent to the onchain should implement this class and its methods
@@ -17,21 +16,14 @@ class BlockChainService(ABC):
         ) -> str:
         """Signs and sends the agreement confirmation onchain. Returns the returned_fingerprint_hash."""
     
-    #function to calculate gas price to be used
-    async def estimate_sign_cost(self, signer_wallet_address: str, creator_wallet_address: str, fingerprint_hash: str) -> float:
-     estimated_gas = self.contract.functions.recordAgreement(
-        bytes.fromhex(fingerprint_hash),
-        Web3.to_checksum_address(creator_wallet_address),
-        Web3.to_checksum_address(signer_wallet_address),
-    ).estimate_gas({"from": signer_wallet_address})
-
-     current_gas_price = self.web3.eth.gas_price
-     estimated_cost_wei = estimated_gas * current_gas_price
-
-    # added 10% in case gas price shifts slightly before the real tx executes
-     buffered_cost_wei = int(estimated_cost_wei * 1.1)
-
-     return float(self.web3.from_wei(buffered_cost_wei, "ether"))
+    @abstractmethod
+    async def estimate_sign_cost(
+        self,
+        signer_wallet_address: str,
+        creator_wallet_address: str,
+        fingerprint_hash: str,
+    ) -> float:
+        """Estimates the MON cost of signing this agreement, based on current gas price."""
         
 class UserRepository(ABC):
     @abstractmethod

@@ -22,6 +22,23 @@ class MonadBlockChainService(BlockChainService):
             address=contract_address, #adress of the smart contract on the monad blockchain
             abi=contract_abi, #instruction man ual for the smart contract on the monad blockchain
         )
+        
+        #function to calculate gas price to be used
+    async def estimate_sign_cost(self, signer_wallet_address: str, creator_wallet_address: str, fingerprint_hash: str) -> float:
+        estimated_gas = self.contract.functions.recordAgreement(
+            bytes.fromhex(fingerprint_hash),
+            Web3.to_checksum_address(creator_wallet_address),
+            Web3.to_checksum_address(signer_wallet_address),
+        ).estimate_gas({"from": signer_wallet_address})
+    
+        current_gas_price = self.web3.eth.gas_price
+        estimated_cost_wei = estimated_gas * current_gas_price
+    
+        # added 10% in case gas price shifts slightly before the real tx executes
+        buffered_cost_wei = int(estimated_cost_wei * 1.1)
+    
+        return float(self.web3.from_wei(buffered_cost_wei, "ether"))
+        
 
     async def record_agreement(
         self, 
@@ -34,6 +51,13 @@ class MonadBlockChainService(BlockChainService):
         private_Key = decrypt_key(signer_private_key)
         account = Account.from_key(private_Key) #loading the private key into the wallet
         
+        #estimating gas to be used
+        estimated_gas = self.contract.functions.recordAgreement(
+            bytes.fromhex(fingerprint_hash),
+            Web3.to_checksum_address(creator_wallet_address),
+            Web3.to_checksum_address(counterparty_wallet_address)
+        ).estimate_gas({"from": account.address})
+        
         #building the transaction to send to the monad blockchain
         transaction = self.contract.functions.recordAgreement(
             bytes.fromhex(fingerprint_hash), #converts the fingerprint hash from hex to bytes
@@ -42,7 +66,7 @@ class MonadBlockChainService(BlockChainService):
         ).build_transaction({
             "from": account.address, #address of the signer
             "nonce": self.web3.eth.get_transaction_count(account.address), #getting the number of transactions sent from the signer's address to prevent replay attacks
-            "gas": 300000, 
+            "gas": estimated_gas, 
             "gasPrice": self.web3.eth.gas_price, #getting the current gas price on the monad blockchain
             "chainId": self.chain_id 
         })
