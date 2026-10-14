@@ -3,6 +3,7 @@ from beanie import PydanticObjectId
 from app.domain.repositories import UserRepository, AgreementRepository
 from .models import UserDocument, AgreementDocument
 from app.domain.entities import User, Agreement
+from beanie.operators import Or
 
 def _user_doc_to_entity(doc: UserDocument) -> User: #translates the userdocument to entity user
     return User(
@@ -84,3 +85,10 @@ class MongoAgreementRepository(AgreementRepository):
         doc.confirmed_at = agreement.confirmed_at
         await doc.save()
         return _agreement_doc_to_entity(doc)
+    #getting the list of documents ever created by a user
+    async def get_by_user(self, user_id: str) -> list[Agreement]:
+        docs = await AgreementDocument.find(
+            Or(AgreementDocument.creator_id == user_id,
+               AgreementDocument.counterparty_id == user_id)
+        ).sort("created_at").to_list()
+        return [_agreement_doc_to_entity(d) for d in docs]

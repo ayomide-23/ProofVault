@@ -11,11 +11,14 @@ from app.application.use_case.create_user import CreateUserUseCase
 from app.application.use_case.sign_agreement import SignAgreementUseCase
 from app.application.use_case.create_agreement import CreateAgreementUseCase
 from app.application.use_case.get_agreement import GetAgreementUseCase
+from app.application.use_case.list_agreement import ListAgreementUseCase
 
 from app.interface.api.users import router as users_router
 from app.interface.api.agreements import router as agreements_router
 
 from app.infrastructure.blockchain.treasury_pool import TreasuryWalletPool
+
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
@@ -41,9 +44,16 @@ async def lifespan(app: FastAPI):
     app.state.create_agreement_use_case = CreateAgreementUseCase(agreement_repository, user_repository)
     app.state.sign_agreement_use_case = SignAgreementUseCase(user_repository, agreement_repository, blockchain_service, treasury_pool)
     app.state.get_agreement_use_case = GetAgreementUseCase(agreement_repository)
+    app.state.list_agreement_use_case = ListAgreementUseCase(agreement_repository)
     
     yield #shutdown
 app = FastAPI(title="ProofVault", lifespan = lifespan)
+app.add_middleware(
+    CORSMiddleware,
+    allow_headers= "*",
+    allow_methods= "*",
+    allow_origins= "http://localhost:5173"
+)
 #registering the routers for the users and agreements endpoints
 app.include_router(users_router)
 app.include_router(agreements_router)

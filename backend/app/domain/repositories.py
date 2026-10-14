@@ -48,5 +48,9 @@ class AgreementRepository(ABC):
         """Retrieves an agreement from the database by its ID. Returns None if not found."""
         
     @abstractmethod
+    async def get_by_user(self, user_id: str) -> list[Agreement]:
+        """Returns all user agreements where the user is a creator or counterparty"""
+        
+    @abstractmethod
     async def update(self, agreement: Agreement) -> Agreement:
         """Updates an existing agreement in the database and returns the updated agreement."""

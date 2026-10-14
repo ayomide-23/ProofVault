@@ -4,6 +4,7 @@ from app.domain.repositories import  BlockChainService
 from app.infrastructure.securtiy.encryption import decrypt_key
 import json
 import os
+import asyncio
 
 
 def load_contract_abi() -> list:
@@ -78,7 +79,10 @@ class MonadBlockChainService(BlockChainService):
         transaction_Hash = self.web3.eth.send_raw_transaction(signed_transaction.raw_transaction)
         
         #waiting for confirmation
-        receipt = self.web3.eth.wait_for_transaction_receipt(transaction_Hash)
+        receipt = await asyncio.to_thread( 
+                self.web3.eth.wait_for_transaction_receipt(transaction_Hash)
+            )
         
         #returning it
-        return receipt.transactionHash.hex()
+        tx_hex =  receipt.transactionHash.hex()
+        return tx_hex if tx_hex.startswith("0x") else "0x" + tx_hex

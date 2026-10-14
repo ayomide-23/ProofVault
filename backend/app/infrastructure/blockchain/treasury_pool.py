@@ -48,4 +48,4 @@ class TreasuryWalletPool:
         }
         signed_tx = account.sign_transaction(tx) #sign the transaction
         tx_hash = self.web3.eth.send_raw_transaction(signed_tx.raw_transaction) #send to monad
-        return self.web3.eth.wait_for_transaction_receipt(tx_hash) #receipt
+        return await asyncio.to_thread(self.web3.eth.wait_for_transaction_receipt(tx_hash)) #receipt
