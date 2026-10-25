@@ -1,17 +1,20 @@
 from beanie import Document
 from datetime import datetime, timezone
+from pydantic import Field
 from typing import Optional 
+from pymongo import IndexModel, ASCENDING
 from app.domain.enums import AgreementStatus
 
 class UserDocument(Document):
-    name: Optional[str] = None
     phone_number: str
+    name: Optional[str] = None
     wallet_address: str
     enctypted_private_key: str
-    created_at: datetime = datetime.now(timezone.utc)
+    created_at: datetime =  Field(default_factory=lambda: datetime.now(timezone.utc))
     
     class Settings:
         name = "users" #name of the collection in the database
+        indexes = [IndexModel([("phone_number", ASCENDING)], unique = True)]
         
 class AgreementDocument(Document):
     title: str
@@ -24,7 +27,7 @@ class AgreementDocument(Document):
     fingerprint_hash: str 
     tx_hash: Optional[str] = None 
     status: AgreementStatus = AgreementStatus.PENDING
-    created_at: datetime = datetime.now(timezone.utc)
+    created_at: datetime =  Field(default_factory=lambda: datetime.now(timezone.utc))
     confirmed_at: Optional[datetime] = None
     
     class Settings: 

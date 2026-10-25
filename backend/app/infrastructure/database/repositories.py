@@ -4,6 +4,8 @@ from app.domain.repositories import UserRepository, AgreementRepository
 from .models import UserDocument, AgreementDocument
 from app.domain.entities import User, Agreement
 from beanie.operators import Or
+from pymongo.errors import DuplicateKeyError
+
 
 def _user_doc_to_entity(doc: UserDocument) -> User: #translates the userdocument to entity user
     return User(
@@ -23,7 +25,11 @@ class MongoUserRepository(UserRepository):
             enctypted_private_key=user.enctypted_private_key,
             name=user.name
         )
-        await doc.insert()
+        try:
+            await doc.insert()
+        except DuplicateKeyError:
+            existing = await UserDocument.find_one(UserDocument.phone_number == user.phone_number)
+            return _user_doc_to_entity(existing)
         return _user_doc_to_entity(doc)
     async def get_by_id(self, user_id: str) -> Optional[User]: #retrieves a user from the database by their ID
         doc = await UserDocument.get(PydanticObjectId(user_id))

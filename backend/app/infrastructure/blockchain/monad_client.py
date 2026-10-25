@@ -80,7 +80,7 @@ class MonadBlockChainService(BlockChainService):
         
         #waiting for confirmation
         receipt = await asyncio.to_thread( 
-                self.web3.eth.wait_for_transaction_receipt(transaction_Hash)
+                self.web3.eth.wait_for_transaction_receipt, transaction_Hash
             )
         
         #returning it

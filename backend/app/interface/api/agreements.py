@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
-from app.interface.api.schemas import CreateAgreementRequest, SignAgreementRequest, AgreementResponse
+from app.interface.api.schemas import CreateAgreementRequest, SignAgreementRequest, AgreementResponse, AgreementListItem
 
 def __to_response(agreement) -> AgreementResponse:
     return AgreementResponse(
@@ -34,6 +34,18 @@ async def create_agreement(request: Request, agreement_request: CreateAgreementR
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return __to_response(agreement)
+@router.get("/", response_model=list[AgreementListItem])
+async def list_agreements(user_id: str, request: Request):
+    use_case = request.app.state.list_agreement_use_case
+    results = await use_case.execute(user_id)
+    return[
+        AgreementListItem(
+            **__to_response(agreement).model_dump(),
+            other_party_name=other.name if other else None,
+            other_party_phone_number=other.phone_number if other else None
+        )
+        for agreement, other in results
+    ]
 #route to sign an existing agreement in the database and return the updated agreement as a response
 @router.post("/{agreement_id}/sign", response_model=AgreementResponse)
 async def sign_agreement(request: Request, agreement_id: str, sign_request: SignAgreementRequest):
