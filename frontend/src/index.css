@@ -1,1 +1,70 @@
-@import "tailwindcss"
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&family=Patrick+Hand&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-gold: #FFC83D;
+  --color-cream: #FFF8E7;
+  --color-ink: #1A1A1A;
+  --color-coral: #FF6B5E;
+  --color-mint: #7ED9A6;
+  --font-display: "Lilita One", sans-serif;
+  --font-body: "Patrick Hand", cursive;
+}
+
+@layer base {
+  body { @apply bg-cream text-ink font-body text-xl; }
+  h1, h2, h3 { @apply font-display; }
+}
+
+@layer components {
+  .card {
+    @apply bg-white border-[3px] border-ink rounded-[18px_14px_20px_12px] p-6 -rotate-1
+           shadow-[6px_6px_0_var(--color-ink)];
+  }
+  .btn {
+    @apply font-display bg-gold text-ink border-[3px] border-ink rounded-2xl px-5 py-2
+           cursor-pointer shadow-[4px_4px_0_var(--color-ink)] transition-all
+           hover:-translate-x-px hover:-translate-y-px
+           active:translate-x-1 active:translate-y-1 active:shadow-none
+           disabled:opacity-60 disabled:cursor-wait;
+  }
+  .page { 
+      @apply min-h-dvh flex items-center justify-center px-4 py-10; 
+    }
+  .input {
+    @apply w-full bg-cream border-[3px] border-ink rounded-xl px-3 py-2 
+           focus:outline-none focus:shadow-[4px_4px_0_var(--color-gold)];
+  }
+  .error { @apply text-coral block; }
+}
+
+@layer base {
+  body {
+    background-image: radial-gradient(circle, rgb(26 26 26 / .14) 1.5px, transparent 1.5px);
+    background-size: 28px 28px;
+  }
+}
+
+@layer components {
+  .bubble { @apply bg-white border-[3px] border-ink rounded-2xl px-4 py-2 font-display text-lg shadow-[4px_4px_0_var(--color-ink)]; }
+  .stamp  { @apply bg-mint text-ink border-[4px] border-ink rounded-lg px-4 py-1 font-display text-2xl; }
+}
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@keyframes draw  { to { stroke-dashoffset: 0; } }
+@keyframes slam  {
+  0%   { transform: scale(2.5) rotate(-20deg); opacity: 0; }
+  70%  { transform: scale(.9) rotate(-8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+}
+
+.animate-float { animation: float 4s ease-in-out infinite; }
+.animate-draw  { stroke-dasharray: 300; stroke-dashoffset: 300; animation: draw 2.5s ease forwards 1s; }
+.animate-slam  { animation: slam .3s cubic-bezier(.2, .8, .3, 1) both;
+                 animation-delay: var(--slam-delay, .8s);
+ }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float, .animate-draw, .animate-slam { animation: none; }
+  .animate-draw { stroke-dashoffset: 0; }
+}
