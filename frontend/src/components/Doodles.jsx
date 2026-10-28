@@ -38,7 +38,7 @@ export default function Doodles() {
       <div className="hidden lg:block absolute top-[24%] right-[5%] bubble bg-gold animate-float rotate-2 [animation-delay:1s]">Deal! 🤝</div>
 
       <Notebook className="hidden lg:block absolute bottom-[10%] left-[6%] w-44 -rotate-6 animate-float [animation-delay:.5s]" />
-      <Pen className="hidden lg:block absolute bottom-[8%] left-[22%] w-8 rotate-[35deg] animate-float [animation-delay:1s]" />
+      <Pen className="hidden lg:block absolute bottom-[8%] left-[22%] w-8 rotate-35 animate-float [animation-delay:1s]" />
 
       <Lock className="hidden lg:block absolute bottom-[28%] right-[14%] w-20 animate-float [animation-delay:1.5s]" />
       <div className="lg:hidden absolute bottom-6 left-4 stamp text-lg px-3 animate-slam [--slam-delay: .1s]">PROVEN ✓</div>

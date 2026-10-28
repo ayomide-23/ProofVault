@@ -36,6 +36,13 @@
            focus:outline-none focus:shadow-[4px_4px_0_var(--color-gold)];
   }
   .error { @apply text-coral block; }
+  .note {
+  @apply bg-white border-[3px] border-ink rounded-xl p-4 cursor-pointer transition-transform
+         shadow-[4px_4px_0_var(--color-ink)] hover:-translate-y-1;
+}
+.sticker {
+  @apply inline-block font-display text-sm border-[3px] border-ink rounded-lg px-2 py-0.5 rotate-3;
+}
 }
 
 @layer base {
@@ -47,7 +54,7 @@
 
 @layer components {
   .bubble { @apply bg-white border-[3px] border-ink rounded-2xl px-4 py-2 font-display text-lg shadow-[4px_4px_0_var(--color-ink)]; }
-  .stamp  { @apply bg-mint text-ink border-[4px] border-ink rounded-lg px-4 py-1 font-display text-2xl; }
+  .stamp  { @apply bg-mint text-ink border-4 border-ink rounded-lg px-4 py-1 font-display text-2xl; }
 }
 
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }

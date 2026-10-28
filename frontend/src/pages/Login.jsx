@@ -22,8 +22,8 @@ export default function Login() {
 
   const validate = () => {
     const new_error = {};
-    if (user.phone_number.length < 11) {
-      new_error.phone_number = "Phone number must be at least 11 digits";
+    if (!/^\+234[789]\d{9}$/.test(user.phone_number)) {
+      new_error.phone_number = "Enter your number as +234XXXXXXXXXX";
     }
     return new_error;
   };
@@ -74,7 +74,7 @@ export default function Login() {
             value={user.name}
             onChange={handlechange}
           />
-          {error.phone_number && <span className="error">{error.phone}</span>}
+          {error.phone_number && <span className="error">{error.phone_number}</span>}
           {error.detail && <span className="error">{error.detail}</span>}
 
           <button
